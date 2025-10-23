@@ -1274,23 +1274,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         fieldDialog.classList.remove("active");
     });
 
-    fieldDialogDone.addEventListener("click", () => {
+       fieldDialogDone.addEventListener("click", () => {
         if (currentFieldTextarea) {
             currentFieldTextarea.value = fieldDialogTextarea.value;
         }
         fieldDialog.classList.remove("active");
+        currentFieldTextarea = null;
     });
 
-    // Initialize the application
+    // Initialize categories and posts
     await loadCategories();
     await loadPosts();
 });
-
-// Make loadPosts available globally for retry button
-window.loadPosts = async function() {
-    // This will be handled by the main script
-    location.reload();
-};
 </script>
 </body>
 </html>
