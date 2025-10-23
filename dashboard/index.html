@@ -1,1 +1,260 @@
-<!-- dashboard -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Loading...</title>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1rem;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.section-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Floating notification (optional) */
+#notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: 500;
+  display: none;
+}
+
+#notification.show {
+  display: block;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+  from {opacity:0; transform: translateY(-10px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+@keyframes fadeout {
+  from {opacity:1;}
+  to {opacity:0;}
+}
+
+  </style>
+</head>
+
+<body class="font-roboto min-h-screen flex flex-col items-center p-6 bg-gradient-to-tr from-blue-50 to-purple-50">
+
+  <!-- Header -->
+  <header class="w-full flex flex-col sm:flex-row items-center justify-between mb-6">
+    <div class="flex items-center space-x-4">
+      <img id="siteIcon" class="w-12 h-12 rounded-full shadow-lg" src="" alt="Site Icon">
+      <h1 id="siteName" class="text-2xl font-bold text-gray-900">Loading...</h1>
+    </div>
+    <div class="mt-4 sm:mt-0 flex items-center space-x-4">
+      <span id="currentTime" class="text-gray-600 font-medium"></span>
+      <button id="logoutBtn" class="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">Logout</button>
+    </div>
+  </header>
+
+  <!-- User Info Card -->
+  <div class="glass-card w-full max-w-sm p-6 mb-6 text-center">
+    <span class="material-icons text-blue-400 text-6xl mb-4">account_circle</span>
+    <h2 id="userName" class="text-xl font-bold text-gray-900">Loading User...</h2>
+    <p id="userEmail" class="text-gray-700 mt-2">Email</p>
+    <p id="userRole" class="text-gray-500 mt-1">Role</p>
+  </div>
+
+  <!-- Dashboard Sections -->
+<main class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
+
+  <a href="users.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-blue-500 text-5xl mb-4">group</span>
+    <h2 class="text-lg font-bold mb-2">Users</h2>
+    <p class="text-gray-700 text-center text-sm">Manage users and roles</p>
+  </a>
+
+  <a href="posts.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-green-500 text-5xl mb-4">article</span>
+    <h2 class="text-lg font-bold mb-2">Posts</h2>
+    <p class="text-gray-700 text-center text-sm">View and edit posts</p>
+  </a>
+
+  <a href="categories.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-purple-500 text-5xl mb-4">category</span>
+    <h2 class="text-lg font-bold mb-2">Categories</h2>
+    <p class="text-gray-700 text-center text-sm">Manage categories</p>
+  </a>
+
+  <a href="settings.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-red-500 text-5xl mb-4">settings</span>
+    <h2 class="text-lg font-bold mb-2">Settings</h2>
+    <p class="text-gray-700 text-center text-sm">Account & preferences</p>
+  </a>
+
+  <a href="analytics.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-yellow-500 text-5xl mb-4">analytics</span>
+    <h2 class="text-lg font-bold mb-2">Analytics</h2>
+    <p class="text-gray-700 text-center text-sm">View site stats</p>
+  </a>
+
+  <a href="messages.html" class="glass-card p-6 flex flex-col items-center cursor-pointer hover:shadow-xl transition">
+    <span class="material-icons text-pink-500 text-5xl mb-4">message</span>
+    <h2 class="text-lg font-bold mb-2">Messages</h2>
+    <p class="text-gray-700 text-center text-sm">Check messages</p>
+  </a>
+
+</main>
+
+
+  <!-- Section Modal -->
+  <div id="sectionModal" class="modal">
+    <div class="glass-card p-6 max-w-3xl w-full relative">
+      <button id="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+      <h2 id="modalTitle" class="text-2xl font-bold mb-4">Section</h2>
+      <div id="modalContent" class="space-y-4">Loading...</div>
+    </div>
+  </div>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "../login/index.html";
+    return;
+  }
+
+  const AUTH_HEADERS = {
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json"
+  };
+
+  const siteNameEl = document.getElementById("siteName");
+  const siteIconEl = document.getElementById("siteIcon");
+  const userNameEl = document.getElementById("userName");
+  const userEmailEl = document.getElementById("userEmail");
+  const userRoleEl = document.getElementById("userRole");
+  const currentTimeEl = document.getElementById("currentTime");
+
+  const modal = document.getElementById("sectionModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalContent = document.getElementById("modalContent");
+  const closeModalBtn = document.getElementById("closeModal");
+
+  const sectionCards = document.querySelectorAll(".section-card");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // Logout
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    window.location.href = "../login/index.html";
+  });
+
+  // Load site info
+  async function loadSiteInfo() {
+    try {
+      const res = await fetch("https://jesse-network.site/wp-json", { headers: AUTH_HEADERS });
+      const data = await res.json();
+      siteNameEl.textContent = data.name || "Dashboard";
+      siteIconEl.src = data.site_icon_url || "../assets/img/default-icon.png";
+      document.title = data.name + " - Dashboard";
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Load user info
+  async function loadUserInfo() {
+    try {
+      const res = await fetch("https://jesse-network.site/wp-json/wp/v2/users/me", { headers: AUTH_HEADERS });
+      const user = await res.json();
+      userNameEl.textContent = user.name || user.username;
+      userEmailEl.textContent = user.email;
+      userRoleEl.textContent = user.roles.join(", ");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Update clock
+  function updateTime() {
+    const now = new Date();
+    currentTimeEl.textContent = now.toLocaleString();
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Section modal
+  sectionCards.forEach(card => {
+    card.addEventListener("click", async () => {
+      const section = card.dataset.section;
+      modalTitle.textContent = section.charAt(0).toUpperCase() + section.slice(1);
+      modalContent.innerHTML = "<p>Loading " + section + "...</p>";
+
+      // Example: load section data dynamically from API
+      try {
+        let endpoint = "https://jesse-network.site/wp-json/wp/v2/" + section;
+        if (section === "settings") endpoint = "https://jesse-network.site/wp-json"; // site settings
+        const res = await fetch(endpoint, { headers: AUTH_HEADERS });
+        const data = await res.json();
+        modalContent.innerHTML = `<pre class="whitespace-pre-wrap text-sm">${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        modalContent.innerHTML = "<p class='text-red-500'>Failed to load section.</p>";
+      }
+
+      modal.classList.add("active");
+    });
+  });
+
+  closeModalBtn.addEventListener("click", () => modal.classList.remove("active"));
+
+  await loadSiteInfo();
+  await loadUserInfo();
+
+});
+
+</script>
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,1 +1,267 @@
-<!-- users -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users Management</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  background: linear-gradient(120deg, #f0f3ff, #fff4f4);
+  font-family: 'Roboto', sans-serif;
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.2rem;
+  transition: all .3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.6rem;
+}
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+.modal.active {
+  display: flex;
+}
+</style>
+</head>
+
+<body class="min-h-screen p-6 flex flex-col items-center">
+
+<header class="w-full flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Users</h1>
+  <div class="flex items-center space-x-3">
+    <input id="searchInput" type="text" placeholder="Search users..." class="p-2 border rounded-lg">
+    <button id="newUserBtn" class="bg-blue-600 text-white px-4 py-2 rounded flex items-center hover:bg-blue-700">
+      <span class="material-icons mr-1">person_add</span>New User
+    </button>
+  </div>
+</header>
+
+<!-- Animated Counter -->
+<div class="mb-6 text-lg font-semibold text-gray-700">
+  Total Users: <span id="userCount" class="text-blue-600 text-2xl font-bold">0</span>
+</div>
+
+<div id="notification" class="fixed top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hidden"></div>
+
+<main id="usersContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+  <p class="text-gray-600">Loading users...</p>
+</main>
+
+<!-- User Edit Modal -->
+<div id="editModal" class="modal">
+  <div class="glass-card w-full max-w-md p-6 relative">
+    <h2 id="modalTitle" class="text-xl font-bold mb-4">Edit User</h2>
+    <input id="editName" placeholder="Name" class="border p-2 rounded w-full mb-3">
+    <input id="editEmail" placeholder="Email" class="border p-2 rounded w-full mb-3">
+    <input id="editPassword" type="password" placeholder="Password (leave empty to keep)" class="border p-2 rounded w-full mb-3">
+    <select id="editRole" class="border p-2 rounded w-full mb-3">
+      <option value="subscriber">Subscriber</option>
+      <option value="author">Author</option>
+      <option value="editor">Editor</option>
+      <option value="administrator">Administrator</option>
+    </select>
+    <textarea id="editDescription" placeholder="Bio / Description" class="border p-2 rounded w-full mb-4"></textarea>
+    <div class="flex justify-end space-x-2">
+      <button id="cancelBtn" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">Cancel</button>
+      <button id="saveBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+      <button id="deleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let users = [];
+let currentUser = null;
+
+const usersContainer = document.getElementById("usersContainer");
+const editModal = document.getElementById("editModal");
+const modalTitle = document.getElementById("modalTitle");
+const editName = document.getElementById("editName");
+const editEmail = document.getElementById("editEmail");
+const editPassword = document.getElementById("editPassword");
+const editRole = document.getElementById("editRole");
+const editDescription = document.getElementById("editDescription");
+const saveBtn = document.getElementById("saveBtn");
+const deleteBtn = document.getElementById("deleteBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const newUserBtn = document.getElementById("newUserBtn");
+const searchInput = document.getElementById("searchInput");
+const notification = document.getElementById("notification");
+const userCount = document.getElementById("userCount");
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "../login/index.html";
+    return;
+  }
+
+  const AUTH_HEADERS = {
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json"
+  };
+
+  async function loadUsers() {
+    try {
+      const res = await fetch("https://jesse-network.site/wp-json/wp/v2/users?per_page=100", { headers: AUTH_HEADERS });
+      users = await res.json();
+
+      // Render users
+      renderUsers(users);
+      animateCount(users.length);
+
+    } catch (err) {
+      console.error(err);
+      usersContainer.innerHTML = "<p class='text-red-500'>Failed to load users</p>";
+    }
+  }
+
+  function renderUsers(data) {
+    usersContainer.innerHTML = "";
+    data.forEach(user => {
+      const card = document.createElement("div");
+      card.className = "glass-card text-center";
+      const avatar = user.avatar_urls?.["96"] || "https://cdn-icons-png.flaticon.com/512/1946/1946429.png";
+      const roles = Array.isArray(user.roles) ? user.roles.join(', ') : "Subscriber";
+
+      card.innerHTML = `
+        <img src="${avatar}" alt="avatar" class="avatar">
+        <h3 class="font-bold text-lg">${user.name}</h3>
+        <p class="text-gray-600 text-sm mb-2">${user.email || 'No email'}</p>
+        <span class="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">${roles}</span>
+      `;
+      card.addEventListener("click", () => openEditModal(user));
+      usersContainer.appendChild(card);
+    });
+  }
+
+  // Animated count-up function
+  function animateCount(target) {
+    let start = 0;
+    const duration = 800;
+    const step = Math.ceil(target / (duration / 16));
+
+    const interval = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        start = target;
+        clearInterval(interval);
+      }
+      userCount.textContent = start;
+    }, 16);
+  }
+
+  function openEditModal(user = null) {
+    currentUser = user;
+    if (user) {
+      modalTitle.textContent = "Edit User";
+      editName.value = user.name;
+      editEmail.value = user.email;
+      editPassword.value = "";
+      editDescription.value = user.description || "";
+      editRole.value = Array.isArray(user.roles) && user.roles.length > 0 ? user.roles[0] : "subscriber";
+      deleteBtn.style.display = "inline-block";
+    } else {
+      modalTitle.textContent = "New User";
+      editName.value = "";
+      editEmail.value = "";
+      editPassword.value = "";
+      editDescription.value = "";
+      editRole.value = "subscriber";
+      deleteBtn.style.display = "none";
+    }
+    editModal.classList.add("active");
+  }
+
+  cancelBtn.addEventListener("click", () => editModal.classList.remove("active"));
+
+  saveBtn.addEventListener("click", async () => {
+    const name = editName.value, email = editEmail.value, password = editPassword.value, role = editRole.value, description = editDescription.value;
+    if (!name || !email) {
+      showNotification("Name and email required", "red");
+      return;
+    }
+
+    try {
+      const data = { name, email, roles: [role], description };
+      if (password) data.password = password;
+
+      const url = currentUser ? `https://jesse-network.site/wp-json/wp/v2/users/${currentUser.id}` : "https://jesse-network.site/wp-json/wp/v2/users";
+      const method = currentUser ? "POST" : "POST";
+      const res = await fetch(url, { method, headers: AUTH_HEADERS, body: JSON.stringify(data) });
+      if (res.ok) {
+        showNotification(currentUser ? "User updated" : "User created", "green");
+        editModal.classList.remove("active");
+        loadUsers();
+      } else showNotification("Failed to save user", "red");
+    } catch (err) {
+      console.error(err);
+      showNotification("Error saving user", "red");
+    }
+  });
+
+  deleteBtn.addEventListener("click", async () => {
+    if (!currentUser) return;
+    if (!confirm("Delete this user?")) return;
+    try {
+      const res = await fetch(`https://jesse-network.site/wp-json/wp/v2/users/${currentUser.id}?reassign=1`, { method: "DELETE", headers: AUTH_HEADERS });
+      if (res.ok) {
+        showNotification("User deleted", "green");
+        editModal.classList.remove("active");
+        loadUsers();
+      } else showNotification("Failed to delete user", "red");
+    } catch (err) {
+      console.error(err);
+      showNotification("Error deleting user", "red");
+    }
+  });
+
+  function showNotification(msg, color) {
+    notification.textContent = msg;
+    notification.className = `fixed top-6 right-6 bg-${color}-500 text-white px-4 py-2 rounded-lg shadow-lg`;
+    notification.style.display = "block";
+    setTimeout(() => notification.style.display = "none", 3000);
+  }
+
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.toLowerCase();
+    renderUsers(users.filter(u =>
+      u.name.toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q)
+    ));
+  });
+
+  newUserBtn.addEventListener("click", () => openEditModal());
+  await loadUsers();
+});
+</script>
+</body>
+</html>
