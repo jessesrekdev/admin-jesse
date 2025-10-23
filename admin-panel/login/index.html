@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel Login</title>
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- JS -->
+    <script src="../assets/js/api.js" defer></script>
+    <script src="../assets/js/auth.js" defer></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen font-roboto">
+
+    <div class="bg-white shadow-2xl rounded-3xl p-10 w-96 flex flex-col items-center">
+        <!-- Website Icon & Name -->
+        <img id="siteIcon" src="" alt="Site Icon" class="w-20 h-20 mb-4 rounded-full shadow">
+        <h1 id="siteName" class="text-3xl font-bold mb-8 text-gray-800">Loading...</h1>
+
+        <!-- Username / Email -->
+        <div class="w-full mb-4 relative">
+            <span class="material-icons absolute left-3 top-3 text-gray-400">person</span>
+            <input id="username" type="text" placeholder="Username or Email"
+                class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Password -->
+        <div class="w-full mb-6 relative">
+            <span class="material-icons absolute left-3 top-3 text-gray-400">lock</span>
+            <input id="password" type="password" placeholder="Password"
+                class="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Login Button -->
+        <button id="loginBtn"
+            class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Log
+            In</button>
+
+        <!-- Message Display -->
+        <p id="message" class="text-red-500 text-sm mt-4 text-center"></p>
+
+        <!-- Optional Signup Link -->
+        <p class="text-gray-600 text-sm mt-6 text-center">
+            Don't have an account?
+            <a href="../signup/" class="text-blue-600 font-medium hover:underline">Sign Up</a>
+        </p>
+    </div>
+
+    <!-- Script to load site name & icon dynamically -->
+    <script>
+        // Wait for the page to fully load before running our code
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            // Function to get WordPress site information
+            async function getSiteInfo() {
+                try {
+                    // Try to fetch data from WordPress REST API
+                    console.log("Fetching site info from WordPress...");
+                    const response = await fetch('https://jesse-network.site/wp-json/');
+
+                    // Check if the request was successful
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    // Convert response to JSON format
+                    const data = await response.json();
+                    console.log("Site data received:", data.site_icon_url);
+
+                    // Return the site name and a default icon
+                    return {
+                        name: data.name,
+                        icon: data.site_icon_url
+                    };
+
+                } catch (error) {
+                    // If anything fails, use default values
+                    console.error("Failed to fetch site info:", error);
+                    return {
+                        alert: "error",
+                    };
+                }
+            }
+
+            // Get the site information
+            console.log("Loading site information...");
+            const siteInfo = await getSiteInfo();
+
+            // Update the HTML elements with the site info
+            document.getElementById("siteName").textContent = siteInfo.name;
+            document.getElementById("siteIcon").src = siteInfo.icon;
+
+            console.log(siteInfo);
+
+            console.log("Site info updated successfully!");
+        });
+    </script>
+</body>
+
+</html>
